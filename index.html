@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>BiGiView 360 | Immersive VR Stories</title>
+  <!-- Google Fonts + Font Awesome 6 -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #0A0A14;
+      color: #EFEFF5;
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
+
+    /* animated gradient background */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 10% 20%, rgba(255, 90, 124, 0.12), transparent 60%),
+                  radial-gradient(circle at 90% 70%, rgba(90, 130, 255, 0.1), transparent 70%);
+      pointer-events: none;
+      z-index: -2;
+    }
+
+    /* floating particles effect */
+    .particle-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: radial-gradient(#FF5A7C 1.2px, transparent 1.2px);
+      background-size: 40px 40px;
+      opacity: 0.25;
+      pointer-events: none;
+      z-index: -1;
+      animation: moveParticles 60s linear infinite;
+    }
+
+    @keyframes moveParticles {
+      0% { background-position: 0 0; }
+      100% { background-position: 80px 80px; }
+    }
+
+    /* custom scroll */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #14141F;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #FF5A7C;
+      border-radius: 8px;
+    }
+
+    /* smooth reveal */
+    .reveal {
+      opacity: 0;
+      transform: translateY(35px);
+      transition: all 0.7s cubic-bezier(0.2, 0.9, 0.3, 1.1);
+    }
+    .reveal.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* floating icons */
+    @keyframes floatSoft {
+      0% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-12px) rotate(2deg); }
+      100% { transform: translateY(0px) rotate(0deg); }
+    }
+    @keyframes spinSlow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    @keyframes pulseGlow {
+      0% { text-shadow: 0 0 0px rgba(255,90,124,0); }
+      100% { text-shadow: 0 0 16px rgba(255,90,124,0.6); }
+    }
+    .float-icon {
+      animation: floatSoft 5s ease-in-out infinite;
+    }
+    .spin-icon {
+      animation: spinSlow 12s linear infinite;
+      display: inline-block;
+    }
+
+    /* container spacious */
+    .container {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 0 40px;
+    }
+
+    /* navbar */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 24px 0;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.9rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #FFFFFF, #FFB347);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .logo i {
+      background: none;
+      color: #FF5A7C;
+      font-size: 2rem;
+      animation: pulseGlow 2s infinite alternate;
+    }
+    .nav-links {
+      display: flex;
+      gap: 32px;
+    }
+    .nav-links a {
+      color: #CFCFE6;
+      text-decoration: none;
+      font-weight: 600;
+      transition: 0.2s;
+      letter-spacing: -0.2px;
+    }
+    .nav-links a:hover {
+      color: #FF8A5C;
+    }
+    .btn-glow {
+      background: linear-gradient(105deg, #FF5A7C, #FF8A5C);
+      border: none;
+      padding: 12px 32px;
+      border-radius: 60px;
+      font-weight: 700;
+      color: white;
+      transition: all 0.25s;
+      box-shadow: 0 5px 15px rgba(255, 90, 124, 0.3);
+      cursor: pointer;
+      display: inline-block;
+    }
+    .btn-glow:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 25px #FF5A7C;
+    }
+
+    /* hero */
+    .hero {
+      min-height: 85vh;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 50px;
+      padding: 50px 0 70px;
+    }
+    .hero-content {
+      flex: 1.2;
+    }
+    .hero-badge {
+      background: rgba(255, 90, 124, 0.18);
+      width: fit-content;
+      padding: 8px 20px;
+      border-radius: 60px;
+      font-size: 0.9rem;
+      backdrop-filter: blur(8px);
+      font-weight: 500;
+    }
+    .hero h1 {
+      font-size: 3.8rem;
+      line-height: 1.2;
+      margin: 25px 0 20px;
+      font-weight: 800;
+      letter-spacing: -1px;
+    }
+    .hero-grad {
+      background: linear-gradient(125deg, #FFD966, #FF5A7C);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .hero p {
+      font-size: 1.2rem;
+      line-height: 1.5;
+      margin: 20px 0 30px;
+      opacity: 0.85;
+    }
+    .hero-3d {
+      flex: 0.8;
+      text-align: center;
+    }
+    .vr-icon-stack {
+      font-size: 7rem;
+      filter: drop-shadow(0 15px 25px rgba(255, 90, 124, 0.4));
+    }
+
+    /* section headers */
+    .section-title {
+      font-size: 2.6rem;
+      margin: 70px 0 35px 0;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      position: relative;
+      display: inline-block;
+    }
+    .section-title:after {
+      content: '';
+      position: absolute;
+      bottom: -12px;
+      left: 0;
+      width: 80px;
+      height: 4px;
+      background: linear-gradient(90deg, #FF5A7C, #FFB347);
+      border-radius: 4px;
+    }
+
+    /* spacious card grids */
+    .grid-3, .service-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+      gap: 35px;
+      margin: 40px 0 50px;
+    }
+    .card-3d {
+      background: rgba(20, 22, 40, 0.65);
+      backdrop-filter: blur(12px);
+      border-radius: 44px;
+      padding: 38px 28px;
+      border: 1px solid rgba(255,255,240,0.08);
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+    .card-3d:hover {
+      transform: translateY(-10px);
+      border-color: #FF8A5C;
+      box-shadow: 0 25px 35px -15px rgba(0,0,0,0.5);
+      background: rgba(30, 32, 58, 0.8);
+    }
+    .card-icon {
+      font-size: 3.2rem;
+      color: #FF8A5C;
+      margin-bottom: 24px;
+      display: inline-block;
+    }
+    .story-block {
+      background: linear-gradient(125deg, #12152F, #090B1A);
+      border-radius: 60px;
+      padding: 55px 45px;
+      margin: 50px 0;
+    }
+
+    /* testimonial carousel - only one active */
+    .testimonial-area {
+      background: rgba(15, 18, 35, 0.6);
+      border-radius: 48px;
+      padding: 50px 40px;
+      margin: 30px 0 50px;
+      text-align: center;
+    }
+    .testimonial-slider {
+      max-width: 800px;
+      margin: 0 auto;
+      position: relative;
+      min-height: 260px;
+    }
+    .testimonial-item {
+      transition: opacity 0.5s ease, transform 0.4s ease;
+      opacity: 0;
+      position: absolute;
+      width: 100%;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+    }
+    .testimonial-item.active {
+      opacity: 1;
+      position: relative;
+      pointer-events: auto;
+    }
+    .testimonial-card {
+      background: rgba(0, 0, 0, 0.45);
+      border-radius: 48px;
+      padding: 38px 30px;
+      border-left: 6px solid #FF5A7C;
+      text-align: left;
+      backdrop-filter: blur(8px);
+    }
+    .testimonial-card i.fa-quote-left {
+      font-size: 2.2rem;
+      opacity: 0.4;
+      color: #FFB347;
+      margin-bottom: 15px;
+      display: block;
+    }
+    .testimonial-card p {
+      font-size: 1.2rem;
+      line-height: 1.5;
+      margin: 15px 0;
+    }
+    .testimonial-dots {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      margin-top: 35px;
+    }
+    .dot {
+      width: 12px;
+      height: 12px;
+      background: #4A4A6A;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .dot.active-dot {
+      background: #FF5A7C;
+      width: 28px;
+      border-radius: 20px;
+    }
+
+    /* address panels + spacing */
+    .address-panel {
+      background: rgba(25, 28, 50, 0.7);
+      backdrop-filter: blur(10px);
+      border-radius: 48px;
+      padding: 40px;
+      transition: 0.2s;
+    }
+    .flex-contact {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 40px;
+      margin: 30px 0 60px;
+    }
+    .flex-contact > div {
+      flex: 1;
+    }
+
+    footer {
+      text-align: center;
+      padding: 45px 0 35px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      margin-top: 50px;
+    }
+
+    @media (max-width: 800px) {
+      .container { padding: 0 24px; }
+      .hero h1 { font-size: 2.5rem; }
+      .section-title { font-size: 2rem; }
+      .story-block { padding: 35px 25px; }
+      .navbar { flex-direction: column; }
+      .nav-links { gap: 18px; flex-wrap: wrap; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+<div class="particle-bg"></div>
+
+<div class="container">
+  <!-- navbar -->
+  <div class="navbar">
+    <div class="logo">
+      <i class="fas fa-vr-cardboard spin-icon"></i>
+      <span>BiGiView<span style="color:#FF5A7C;"> 360</span></span>
+    </div>
+    <div class="nav-links">
+      <a href="#">Home</a>
+      <a href="#story">Story</a>
+      <a href="#services">Services</a>
+      <a href="#clients">Clients</a>
+      <a href="#contact">Connect</a>
+    </div>
+    <div>
+      <a href="tel:9996669691" class="btn-glow"><i class="fas fa-headset"></i> 9996669691</a>
+    </div>
+  </div>
+
+  <!-- Hero Section spacious -->
+  <div class="hero">
+    <div class="hero-content reveal">
+      <div class="hero-badge"><i class="fas fa-globe-americas"></i> 360° Immersive Reality Studio</div>
+      <h1>Turn Moments Into <span class="hero-grad">360° Wonderlands</span><br>VR Tours · Wedding Magic · Event VR</h1>
+      <p>Publish on Google Maps, YouTube, Websites — experience total immersion. We capture your world in spherical glory. Walk through your dream venue or relive your wedding in breathtaking VR.</p>
+      <a href="#contact" class="btn-glow" style="display: inline-block;"><i class="fas fa-camera"></i> Start Your 360 Journey</a>
+    </div>
+    <div class="hero-3d reveal">
+      <div class="vr-icon-stack float-icon">
+        <i class="fas fa-camera-retro"></i> <i class="fas fa-vr-cardboard"></i> <i class="fas fa-map-marked-alt"></i>
+      </div>
+      <div style="margin-top: 25px; background: rgba(255,90,124,0.2); border-radius: 60px; padding: 10px 18px; display: inline-block;">
+        <i class="fas fa-chart-line"></i> 93% more engagement with VR tours
+      </div>
+    </div>
+  </div>
+
+  <!-- Story: why 360 & importance -->
+  <div id="story" class="reveal">
+    <h2 class="section-title">📖 The 360 Revolution — Why It Matters</h2>
+    <div class="story-block">
+      <p style="font-size: 1.4rem; font-weight: 500; line-height: 1.4;">Imagine stepping inside a hotel room before booking, walking through a college campus from your couch, or reliving your wedding dance as if you're still there — that's the superpower of 360° immersive tech.</p>
+      <div class="grid-3" style="margin-top: 45px;">
+        <div><i class="fas fa-building" style="font-size: 2.4rem; color:#FF8A5C;"></i> <h3 style="margin: 12px 0;">Real Estate</h3><p style="line-height: 1.5;">Boost property closings by 49% with immersive walkthroughs. Buyers explore every corner.</p></div>
+        <div><i class="fas fa-hotel" style="font-size: 2.4rem; color:#FF8A5C;"></i> <h3 style="margin: 12px 0;">Hospitality & Travel</h3><p style="line-height: 1.5;">Showcase resorts, museums & cafes like never before — increase direct bookings.</p></div>
+        <div><i class="fas fa-chalkboard-user" style="font-size: 2.4rem; color:#FF8A5C;"></i> <h3 style="margin: 12px 0;">Education & Retail</h3><p style="line-height: 1.5;">Interactive campus tours, virtual stores that wow parents and students.</p></div>
+      </div>
+      <div style="margin-top: 35px; display: flex; gap: 15px; flex-wrap: wrap;">
+        <span class="hero-badge"><i class="fab fa-google"></i> Google Maps Ready</span>
+        <span class="hero-badge"><i class="fab fa-youtube"></i> YouTube 360</span>
+        <span class="hero-badge"><i class="fas fa-laptop-code"></i> Website Embed</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Who Needs & Benefits -->
+  <div class="reveal">
+    <h2 class="section-title">🎯 Who Needs 360° Magic?</h2>
+    <div class="grid-3">
+      <div class="card-3d"><i class="fas fa-store card-icon"></i><h3>Retail / Malls</h3><p>Virtual shopping tours & interactive displays to attract footfall.</p></div>
+      <div class="card-3d"><i class="fas fa-ring card-icon"></i><h3>Wedding Planners</h3><p>360° bridal entries, drone-like VR memories that last forever.</p></div>
+      <div class="card-3d"><i class="fas fa-microphone-alt card-icon"></i><h3>Event Organizers</h3><p>Concerts, Conferences & Festivals captured in full sphere.</p></div>
+      <div class="card-3d"><i class="fas fa-landmark card-icon"></i><h3>Heritage & Tourism</h3><p>Museums, forts, monuments — bring history alive with 360 guides.</p></div>
+      <div class="card-3d"><i class="fas fa-school card-icon"></i><h3>Educational Institutes</h3><p>Campus tours & VR labs for enrollment growth.</p></div>
+      <div class="card-3d"><i class="fas fa-car card-icon"></i><h3>Automotive</h3><p>360° showroom & test drive experience from anywhere.</p></div>
+    </div>
+  </div>
+
+  <!-- Wedding & Event Fun Section -->
+  <div class="reveal story-block" style="background: linear-gradient(115deg, #171C3A, #0B0D1F);">
+    <div style="display: flex; flex-wrap: wrap; gap: 40px; align-items: center;">
+      <div style="flex: 1.2;">
+        <i class="fas fa-heart" style="font-size: 3rem; color:#FF6584;"></i>
+        <h2 style="font-size: 2.4rem; margin: 15px 0;">Weddings & Events — 360° VR Magic</h2>
+        <p style="font-size: 1.1rem; line-height: 1.5;">Imagine watching your Sangeet from every angle, your first kiss as if you're floating among guests. We shoot weddings, birthdays, concerts with 360 cameras and deliver immersive VR experiences. Share with loved ones who can <strong>walk through the celebration</strong> using any VR headset or even on mobile! It's storytelling that makes you smile forever.</p>
+        <div style="margin-top: 25px;"><i class="fas fa-laugh-beam"></i> <strong>“Our event felt like a blockbuster 360 cinema!”</strong> — Rohan & Simran</div>
+      </div>
+      <div style="flex: 0.8; text-align: center;">
+        <i class="fas fa-camera-retro float-icon" style="font-size: 5rem;"></i>
+        <i class="fas fa-mask" style="font-size: 4rem; margin-left: 15px;"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- Services Delivered (Projects) -->
+  <div id="services" class="reveal">
+    <h2 class="section-title">✨ Our 360° Superpowers — Projects Delivered</h2>
+    <div class="service-grid">
+      <div class="card-3d"><i class="fas fa-church card-icon"></i><h3>Radisson Blu Gurugram</h3><p>360° virtual tour + Google Street View integration · 40% more inquiries</p></div>
+      <div class="card-3d"><i class="fas fa-university card-icon"></i><h3>Shiv Nadar University</h3><p>Interactive campus VR tour for admissions · 2k+ views</p></div>
+      <div class="card-3d"><i class="fas fa-ring card-icon"></i><h3>Sharma & Mehta Wedding</h3><p>Full wedding 360° experience + VR booth · Guests thrilled!</p></div>
+      <div class="card-3d"><i class="fas fa-museum card-icon"></i><h3>Heritage Museum Hisar</h3><p>Immersive walkthrough with hotspots — published on website</p></div>
+      <div class="card-3d"><i class="fas fa-champagne-glasses card-icon"></i><h3>VIVO Event Launch</h3><p>360° product launch coverage, YouTube 360 upload, 1.2M+ impressions</p></div>
+      <div class="card-3d"><i class="fas fa-tree card-icon"></i><h3>Resort Naldehra</h3><p>VR tour for travel agents, boosted bookings 63% in 3 months</p></div>
+    </div>
+  </div>
+
+  <!-- Publishing Platforms Expanded -->
+  <div class="reveal">
+    <div style="display: flex; flex-wrap: wrap; gap: 25px; background: rgba(255,90,124,0.07); border-radius: 60px; padding: 45px; margin: 30px 0;">
+      <div style="flex:1; text-align: center;"><i class="fab fa-google" style="font-size: 2.8rem;"></i><h3 style="margin: 12px 0;">Google Maps & Street View</h3><p>Get your business listed with 360 tour inside Google — attract real customers.</p></div>
+      <div style="flex:1; text-align: center;"><i class="fab fa-youtube" style="font-size: 2.8rem;"></i><h3>YouTube 360°</h3><p>Upload immersive videos, users can drag to explore — next-gen content.</p></div>
+      <div style="flex:1; text-align: center;"><i class="fas fa-laptop-code" style="font-size: 2.8rem;"></i><h3>Website Embed</h3><p>Seamless integration on any site, increase time-on-page by 4x.</p></div>
+      <div style="flex:1; text-align: center;"><i class="fab fa-facebook" style="font-size: 2.8rem;"></i><h3>Social VR Posts</h3><p>Facebook 360, Instagram — get viral engagement.</p></div>
+    </div>
+  </div>
+
+  <!-- Testimonial Carousel - only one visible, auto change -->
+  <div id="clients" class="reveal">
+    <h2 class="section-title">💬 Client Whispers — Pure Magic</h2>
+    <div class="testimonial-area">
+      <div class="testimonial-slider" id="testimonialSlider">
+        <!-- testimonials injected via JS for cleaner structure -->
+      </div>
+      <div class="testimonial-dots" id="testimonialDots"></div>
+    </div>
+  </div>
+
+  <!-- Extra Benefits Section -->
+  <div class="reveal" style="margin: 30px 0 40px;">
+    <div style="display: flex; flex-wrap: wrap; gap: 35px;">
+      <div style="flex:1; background: linear-gradient(135deg, #12152F, #030617); border-radius: 48px; padding: 38px;">
+        <i class="fas fa-chart-simple" style="font-size: 2.2rem;"></i>
+        <h3 style="margin: 18px 0;">📈 Why Virtual Tours Are GAME CHANGER</h3>
+        <p style="line-height: 1.5;">✔ 88% of users consider virtual tours essential before booking.<br>✔ 67% more likely to purchase after immersive experience.<br>✔ Reduces bounce rate, boosts SEO & trust.<br>✔ Perfect for future-proof marketing.</p>
+      </div>
+      <div style="flex:1; background: rgba(255,90,124,0.12); border-radius: 48px; padding: 38px; text-align: center;">
+        <i class="fas fa-vr-cardboard spin-icon" style="font-size: 3.5rem;"></i>
+        <h3 style="margin: 15px 0;">VR Headset Ready</h3>
+        <p>Watch our 360° creations on Oculus, HTC Vive, or via mobile gyroscope. HTML5 tours, no app required.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contact & Address -->
+  <div id="contact" class="reveal">
+    <h2 class="section-title">📍 Let's Create 360° Stories</h2>
+    <div class="flex-contact">
+      <div class="address-panel">
+        <i class="fas fa-building" style="font-size: 2rem;"></i>
+        <h3 style="margin: 15px 0;">Head Office</h3>
+        <p>Railway Station Road, Gurugram, Haryana - 122001</p>
+        <i class="fas fa-map-marker-alt" style="margin-top: 20px; display: inline-block;"></i>
+        <h3 style="margin: 15px 0 5px;">Other Office</h3>
+        <p>Sabzi Mandi Road, Uklana Mandi, Hisar - 125113</p>
+        <div style="margin: 28px 0;">
+          <i class="fas fa-phone-alt"></i> <strong style="font-size: 1.6rem;"> 9996669691</strong><br>
+          <i class="fas fa-envelope"></i> hello@bigiview360.com
+        </div>
+        <div style="background: rgba(255,90,124,0.2); border-radius: 40px; padding: 8px 20px; display: inline-block;"><i class="fab fa-whatsapp"></i> Available on WhatsApp & Call</div>
+      </div>
+      <div class="address-panel" style="background: linear-gradient(145deg, #191E3A, #0E1025);">
+        <i class="fas fa-headset"></i>
+        <h3 style="margin: 12px 0;">Let's Talk 360 Dreams</h3>
+        <p style="margin-bottom: 20px;">Ready to amaze your audience? Book a free consultation for virtual tour, 360 wedding shoot, or event VR.</p>
+        <a href="tel:9996669691" class="btn-glow" style="display: inline-block;"><i class="fas fa-camera"></i> Call Now: 9996669691</a>
+        <p style="margin-top: 20px; font-size: 0.9rem;">We cover PAN India for 360 shoots and VR production.</p>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>© 2025 BiGiView 360 — Immersive Experience Architects | All 360° visions realized</p>
+    <div style="margin-top: 18px; display: flex; justify-content: center; gap: 28px;">
+      <i class="fab fa-instagram fa-lg"></i> <i class="fab fa-youtube fa-lg"></i> <i class="fab fa-linkedin fa-lg"></i>
+    </div>
+  </footer>
+</div>
+
+<script>
+  // Testimonial carousel data
+  const testimonials = [
+    { quote: "BiGiView 360 transformed our hotel listing! Guests now book after seeing the lifelike VR tour. Our occupancy skyrocketed!", name: "Radisson Blu, Gurugram", stars: 5 },
+    { quote: "The wedding 360 video was the best decision ever. Reliving our reception in VR with parents made me cry! So much fun. Thank you BiGiView team!", name: "Priya & Ankit, Delhi NCR", heart: true },
+    { quote: "Professional 360 shoot for our college fest, even published on YouTube 360. Students went crazy sharing it. Highly recommended!", name: "MIT World Peace University" },
+    { quote: "From corporate events to real estate 360, BiGiView 360 delivers insanely creative results. The VR headset experience is next level.", name: "DLF Corporate" },
+    { quote: "Their 360 tour gave our museum a digital rebirth. Visitors explore online before arriving. Absolute game-changer.", name: "Hisar Heritage Museum" }
+  ];
+
+  let currentTestimonialIndex = 0;
+  let intervalId = null;
+
+  function buildCarousel() {
+    const slider = document.getElementById('testimonialSlider');
+    const dotsContainer = document.getElementById('testimonialDots');
+    slider.innerHTML = '';
+    dotsContainer.innerHTML = '';
+    testimonials.forEach((t, idx) => {
+      const div = document.createElement('div');
+      div.className = 'testimonial-item';
+      if (idx === 0) div.classList.add('active');
+      const starHtml = t.stars ? '<div><i class="fas fa-star" style="color: gold;"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>' : (t.heart ? '<div><i class="fas fa-heart" style="color:#FF6584;"></i> <i class="fas fa-heart" style="color:#FF6584;"></i></div>' : '');
+      div.innerHTML = `
+        <div class="testimonial-card">
+          <i class="fas fa-quote-left"></i>
+          <p>“${t.quote}”</p>
+          ${starHtml}
+          <h4 style="margin-top: 15px;">— ${t.name}</h4>
+        </div>
+      `;
+      slider.appendChild(div);
+      // dots
+      const dot = document.createElement('div');
+      dot.classList.add('dot');
+      if (idx === 0) dot.classList.add('active-dot');
+      dot.addEventListener('click', () => {
+        stopAutoRotate();
+        showTestimonial(idx);
+        startAutoRotate();
+      });
+      dotsContainer.appendChild(dot);
+    });
+  }
+
+  function showTestimonial(index) {
+    const items = document.querySelectorAll('.testimonial-item');
+    const dots = document.querySelectorAll('.dot');
+    if (!items.length) return;
+    items.forEach((item, i) => {
+      item.classList.toggle('active', i === index);
+    });
+    dots.forEach((dot, i) => {
+      dot.classList.toggle('active-dot', i === index);
+    });
+    currentTestimonialIndex = index;
+  }
+
+  function nextTestimonial() {
+    let next = (currentTestimonialIndex + 1) % testimonials.length;
+    showTestimonial(next);
+  }
+
+  function startAutoRotate() {
+    if (intervalId) clearInterval(intervalId);
+    intervalId = setInterval(() => {
+      nextTestimonial();
+    }, 5500);
+  }
+
+  function stopAutoRotate() {
+    if (intervalId) clearInterval(intervalId);
+    intervalId = null;
+  }
+
+  // initialise carousel and auto rotate
+  buildCarousel();
+  startAutoRotate();
+
+  // Intersection Observer for reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('active');
+      }
+    });
+  }, { threshold: 0.12, rootMargin: "0px 0px -20px 0px" });
+  reveals.forEach(el => observer.observe(el));
+
+  // smooth 3D mouse move on hero icon
+  const heroIcon = document.querySelector('.vr-icon-stack');
+  if (heroIcon) {
+    document.addEventListener('mousemove', (e) => {
+      let xAxis = (window.innerWidth / 2 - e.pageX) / 35;
+      let yAxis = (window.innerHeight / 2 - e.pageY) / 35;
+      heroIcon.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+    });
+  }
+</script>
+</body>
+</html>
